@@ -1,7 +1,3 @@
-
-from http.client import ImproperConnectionState
-
-
 import pygame
 import random
 import math
