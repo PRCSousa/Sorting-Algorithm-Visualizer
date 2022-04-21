@@ -54,8 +54,10 @@ def draw_list(drawInfo):
     for i, val in enumerate(lst):
         x = drawInfo.start_x + i * drawInfo.bar_width
         y = drawInfo.height - (val - drawInfo.min_value) * drawInfo.bar_height
-        greys = map_range(val, drawInfo.min_value,drawInfo.max_value, 230, 50)
-        color = (greys, greys, greys)
+
+        grad = map_range(val, drawInfo.min_value,drawInfo.max_value, 230, 50)
+
+        color = (grad, grad, grad)
 
         pygame.draw.rect(drawInfo.window, color,
                          (x, y, drawInfo.bar_width - 2, drawInfo.height))
