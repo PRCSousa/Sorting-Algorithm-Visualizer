@@ -1,8 +1,11 @@
-# Sorting-Algorithm-Visualizer
-See a visual representation of sorting algorithms in action, implemented using pygame.
+# Sorting Algorithm Visualizer
+See a visual representation of many sorting algorithms in action.
 
-- Commands:
-
-  - Arrows: Change algorithm and sorting order.
-  - Enter: Begin the sorting
-  - R: Reset
+- Features:
+  - Various algorithms
+  - Iteration Counter
+  - Order Selection
+   
+- Implemented Algorithms:
+  - Bubble Sort
+  - Selection Sort 
