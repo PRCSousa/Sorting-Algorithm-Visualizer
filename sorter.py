@@ -6,7 +6,7 @@ import math
 pygame.init()
 
 
-class DrawInformation:
+class Settings:
 
     # Colors
     BLACK = 0, 0, 0,
@@ -22,7 +22,10 @@ class DrawInformation:
     TOP = 100
 
     # Text
-    FONT = pygame.font.SysFont('hack', 15)
+    FONT = pygame.font.SysFont('hack', 13)
+
+    # Iteration
+    iterations = 0
 
     def __init__(self, width, height, lst):
         self.width = width
@@ -47,26 +50,51 @@ def map_range(val, in_min, in_max, out_min, out_max):
     return (val - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
 
-def draw(drawInfo, sort, algo, asc):
-    drawInfo.window.fill(drawInfo.BG_COLOR)
-    text = drawInfo.FONT.render(f"Sorting Algorithm: {algo.__name__} | Order: {'Ascending' if asc else 'Descending'} | {'Sorting...'if sort else 'In Standby'}", 1, drawInfo.WHITE)
-    drawInfo.window.blit(text, (6, 5))
-    draw_list(drawInfo)
+def draw(setting, sort, algo, asc):
+
+    setting.window.fill(setting.BG_COLOR)
+
+    infotext = setting.FONT.render(f"Sorting Algorithm: {algo.__name__} | Order: {'Ascending' if asc else 'Descending'} | {'Sorting...'if sort else 'In Standby'}", 1, setting.WHITE)
+    infotext_rect = infotext.get_rect()
+    infotext_rect.left = 6
+    infotext_rect.top = 5
+    setting.window.blit(infotext, infotext_rect)
+
+    itertext = setting.FONT.render(f"{setting.iterations} {'iterations' if (setting.iterations != 1) else 'iteration'}", 1, setting.WHITE)
+    itertext_rect = itertext.get_rect()
+    itertext_rect.right = setting.width - 6
+    itertext_rect.top = 5
+    setting.window.blit(itertext, itertext_rect)
+
+    ctrls = setting.FONT.render(f"Controls:", 1, setting.WHITE)
+    ctrls_rect = ctrls.get_rect()
+    ctrls_rect.left = 6
+    ctrls_rect.top = 35
+    setting.window.blit(ctrls, ctrls_rect)
+
+
+    keys = setting.FONT.render(f"R - Reset | Return - Start | Arrows: Algorithm / Order", 1, setting.WHITE)
+    keys_rect = keys.get_rect()
+    keys_rect.left = 6
+    keys_rect.top = 50
+    setting.window.blit(keys, keys_rect)
+
+    draw_list(setting)
     pygame.display.update()
 
 
-def draw_list(drawInfo):
-    lst = drawInfo.lst
+def draw_list(setting):
+    lst = setting.lst
     for i, val in enumerate(lst):
-        x = drawInfo.start_x + i * drawInfo.bar_width
-        y = drawInfo.height - (val - drawInfo.min_value) * drawInfo.bar_height
+        x = setting.start_x + i * setting.bar_width
+        y = setting.height - (val - setting.min_value) * setting.bar_height
 
-        grad = map_range(val, drawInfo.min_value,drawInfo.max_value, drawInfo.MIN_GRAD, drawInfo.MAX_GRAD)
+        grad = map_range(val, setting.min_value,setting.max_value, setting.MIN_GRAD, setting.MAX_GRAD)
 
         color = (grad, grad, grad)
 
-        pygame.draw.rect(drawInfo.window, color,
-                         (x, y, drawInfo.bar_width, drawInfo.height))
+        pygame.draw.rect(setting.window, color,
+                         (x, y, setting.bar_width, setting.height))
 
 
 def gen_list(n, min_val, max_val):
@@ -79,20 +107,22 @@ def gen_list(n, min_val, max_val):
     return lst
   
 
-def bubble_sort(drawInfo, asc = True):
-    lst = drawInfo.lst
+def bubble_sort(setting, asc = True):
+    lst = setting.lst
     for i in range(len(lst) -1):
         for j in range(0, len(lst) - 1 - i):
             if (lst[j] > lst[j+1] and asc) or (lst[j] < lst[j+1] and not asc):
-                 lst[j] , lst[j+1] = lst[j+1] , lst[j]
-                 yield True
+                setting.iterations += 1
+                lst[j] , lst[j+1] = lst[j+1] , lst[j]
+                yield True
 
-def selection_sort(drawInfo, asc = True):
-    lst = drawInfo.lst
+def selection_sort(setting, asc = True):
+    lst = setting.lst
     for i in range(len(lst)):
         index = i
         for j in range(i+1, len(lst)):
             if (lst[index] > lst[j] and asc) or (lst[index] < lst[j] and not asc):
+                setting.iterations += 1
                 index = j
         lst[i] , lst[index] = lst[index] , lst[i]
         yield True
@@ -111,7 +141,7 @@ def main():
     algorithm = bubble_sort
     sorting_generator = None
     lst = gen_list(n, min_val, max_val)
-    drawInfo = DrawInformation(800, 600, lst)
+    setting = Settings(800, 600, lst)
     clock = pygame.time.Clock()
 
     while running:
@@ -123,7 +153,7 @@ def main():
             except StopIteration:
                 sorting = False
         
-        draw(drawInfo, sorting, algorithm, ascending)
+        draw(setting, sorting, algorithm, ascending)
 
         pygame.display.update()
 
@@ -137,25 +167,35 @@ def main():
             
             if event.type == pygame.KEYDOWN:
                 key = pygame.key.get_pressed() 
+
                 if key[pygame.K_r]:
                     lst = gen_list(n, min_val, max_val)
-                    drawInfo.set_list(lst)
+                    setting.set_list(lst)
+                    setting.iterations = 0
                     sorting = False
 
                 if key[pygame.K_RETURN] and not sorting:
                     sorting = True
-                    sorting_generator = algorithm(drawInfo, ascending)
+                    setting.iterations = 0
+                    sorting_generator = algorithm(setting, ascending)
 
                 if key[pygame.K_UP] and not sorting:
+                    setting.iterations = 0
                     ascending = True
+
                 if key[pygame.K_DOWN] and not sorting:
+                    setting.iterations = 0
                     ascending = False
+
                 if key[pygame.K_LEFT] and not sorting:
+                    setting.iterations = 0
                     algorithm_num -= 1
                     if algorithm_num < 0:
                         algorithm_num = 0
                     algorithm = algorithm_list[algorithm_num]
+
                 if key[pygame.K_RIGHT] and not sorting:
+                    setting.iterations = 0
                     algorithm_num += 1
                     if algorithm_num > 1:
                         algorithm_num = 1
