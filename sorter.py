@@ -11,15 +11,13 @@ class Settings:
     # Colors
     BLACK = 0, 0, 0,
     WHITE = 255, 255, 255
-    GREEN = 0, 255, 0
-    RED = 255, 0, 0
     MAX_GRAD = 160
     MIN_GRAD = 30
     BG_COLOR = BLACK
 
     # Paddings
     BORDER = 60
-    TOP = 100
+    TOP = 150
 
     # Text
     FONT = pygame.font.SysFont('hack', 13)
@@ -41,7 +39,7 @@ class Settings:
         self.max_value = max(lst)
         self.spacing = 2
         self.bar_width = round((self.width - self.BORDER) / len(lst))
-        self.bar_height = math.floor(
+        self.bar_height = round(
             (self.height - self.TOP) / (self.max_value - self.min_value))
         self.start_x = 10
 
@@ -71,7 +69,6 @@ def draw(setting, sort, algo, asc):
     ctrls_rect.left = 6
     ctrls_rect.top = 35
     setting.window.blit(ctrls, ctrls_rect)
-
 
     keys = setting.FONT.render(f"R - Reset | Return - Start | Arrows: Algorithm / Order", 1, setting.WHITE)
     keys_rect = keys.get_rect()
@@ -116,6 +113,7 @@ def bubble_sort(setting, asc = True):
                 lst[j] , lst[j+1] = lst[j+1] , lst[j]
                 yield True
 
+
 def selection_sort(setting, asc = True):
     lst = setting.lst
     for i in range(len(lst)):
@@ -130,7 +128,7 @@ def selection_sort(setting, asc = True):
 
 def main():
     running = True
-    n = 100
+    n = 200
     min_val = 10
     max_val = 100
     sorting = False
